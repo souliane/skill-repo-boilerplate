@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Run tests in Docker across all supported Python versions (mirrors CI).
+# Uses ubuntu:latest + uv, same as GitHub Actions ubuntu-latest runner.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

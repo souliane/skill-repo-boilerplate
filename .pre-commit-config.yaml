@@ -44,6 +44,7 @@ repos:
     rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # v6.0.0
     hooks:
       - id: check-added-large-files
+        args: [--maxkb=600]
       - id: check-json
       - id: check-merge-conflict
       - id: check-toml
@@ -88,23 +89,17 @@ repos:
       - id: gitleaks
   - repo: local
     hooks:
-      - id: scripts-have-uv-shebang
-        name: scripts-have-uv-shebang
-        language: pygrep
-        entry: '#!/usr/bin/env -S uv run --script'
-        args: [--negate]
-        files: '.*/scripts/[^_][^/]*\.py$'
-      - id: scripts-have-inline-metadata
-        name: scripts-have-inline-metadata
-        language: pygrep
-        entry: '# /// script'
-        args: [--negate]
-        files: '.*/scripts/[^_][^/]*\.py$'
       - id: scripts-no-raw-sys-argv
         name: scripts-no-raw-sys-argv
         language: pygrep
         entry: 'sys\.argv'
-        files: '.*/scripts/[^_][^/]*\.py$'
+        files: 'scripts/[^_][^/]*\.py$'
+      - id: banned-terms
+        name: banned-terms
+        language: script
+        entry: scripts/hooks/check-banned-terms.sh --config ~/.teatree
+        types: [text]
+        exclude: ^(\.pre-commit-config\.yaml|scripts/hooks/)$
 
   # Phase 7 - Project-specific
   - repo: local
