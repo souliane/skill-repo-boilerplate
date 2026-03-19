@@ -9,7 +9,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 README_PATH = ROOT_DIR / "README.md"
 
 BEGIN = "<!-- BEGIN SKILLS -->"

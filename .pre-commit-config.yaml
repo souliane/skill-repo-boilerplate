@@ -89,6 +89,18 @@ repos:
       - id: gitleaks
   - repo: local
     hooks:
+      - id: scripts-have-uv-shebang
+        name: scripts-have-uv-shebang
+        language: pygrep
+        entry: '#!/usr/bin/env -S uv run --script'
+        args: [--negate]
+        files: '.*/scripts/cli\.py$'
+      - id: scripts-have-inline-metadata
+        name: scripts-have-inline-metadata
+        language: pygrep
+        entry: '# /// script'
+        args: [--negate]
+        files: '.*/scripts/cli\.py$'
       - id: scripts-no-raw-sys-argv
         name: scripts-no-raw-sys-argv
         language: pygrep
@@ -97,7 +109,7 @@ repos:
       - id: banned-terms
         name: banned-terms
         language: script
-        entry: scripts/hooks/check-banned-terms.sh --config ~/.teatree
+        entry: scripts/hooks/check-banned-terms.sh --config ~/.my-skills
         types: [text]
         exclude: ^(\.pre-commit-config\.yaml|scripts/hooks/)$
 
@@ -107,7 +119,7 @@ repos:
       - id: update-readme-skills
         name: Update README skills catalogue
         language: system
-        entry: uv run scripts/update_readme_skills.py
+        entry: uv run scripts/hooks/update_readme_skills.py
         pass_filenames: false
         always_run: true
 
