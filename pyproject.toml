@@ -136,6 +136,10 @@ partial_branches = [
 
 [tool.coverage.run]
 source = [ "scripts" ]
+omit = [
+  "scripts/bump-pyproject-deps-from-lock-file.py",
+  "scripts/hooks/*",
+]
 
 [tool.ty.analysis]
 # External deps from uv script headers (not installed in the skill repo)
