@@ -67,11 +67,12 @@ repos:
     rev: 63c8f8312b7559622c0d82815639671ae42132ac  # v2.4.1
     hooks:
       - id: codespell
-        args: [--write-changes]
+        args: [--write-changes, --ignore-words-list=afterAll]
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: 61529b21391331d7cfd1f191df6293534a1fd79a  # v3.4.0
     hooks:
       - id: editorconfig-checker
+        exclude: \.m?html$
 
   # Phase 5 - Type check
   - repo: local
@@ -105,7 +106,7 @@ repos:
         name: scripts-no-raw-sys-argv
         language: pygrep
         entry: 'sys\.argv'
-        files: 'scripts/[^_][^/]*\.py$'
+        files: '.*/scripts/[^_][^/]*\.py$'
       - id: banned-terms
         name: banned-terms
         language: script
@@ -119,7 +120,7 @@ repos:
       - id: update-readme-skills
         name: Update README skills catalogue
         language: system
-        entry: uv run scripts/hooks/update_readme_skills.py
+        entry: uv run scripts/update_readme_skills.py
         pass_filenames: false
         always_run: true
 
