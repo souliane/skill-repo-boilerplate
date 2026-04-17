@@ -12,6 +12,7 @@ classifiers = [
 
 [dependency-groups]
 dev = [
+  "pip-audit>=2",
   "pytest>=9.0.2",
   "pytest-cov>=7",
   "tomlkit>=0.14",
