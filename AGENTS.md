@@ -13,8 +13,9 @@ tests/                  Tests for scripts
 ## Skill Files
 
 - `SKILL.md` is the entry point. Keep it focused on workflow and rules.
-- Move detailed content to `references/` -- one level deep only.
-- Never change `version:` in YAML frontmatter -- auto-managed.
+- Move detailed content to `references/` — one level deep only.
+- Never change `version:` in YAML frontmatter — auto-managed.
+- Skill naming: gerund form with an author/org prefix (e.g., `ac-editing-acroforms`, `ac-adopting-ruff`). Domain skills keep plain names (`ac-django`, `ac-python`).
 
 ## Python Scripts
 
@@ -22,26 +23,26 @@ All scripts must follow these conventions:
 
 1. **uv shebang:** `#!/usr/bin/env -S uv run --script`
 2. **Inline metadata:** `# /// script` block with `dependencies` list (even if empty)
-3. **Typer for CLI:** `typer>=0.12` in inline deps -- no raw `sys.argv` or `argparse`
+3. **Typer for CLI:** `typer>=0.12` in inline deps — no raw `sys.argv` or `argparse`
 4. **Single entry point:** each skill's CLI lives in `my-skill/scripts/cli.py`
-5. **Type annotations:** `ty-check` runs on all files -- use `str | None` not `Optional[str]`
+5. **Type annotations:** `ty-check` runs on all files — use `str | None` not `Optional[str]`
 6. **4-space indentation** everywhere (matches `.editorconfig`)
 7. **Make executable:** `chmod +x` the script file
 
 ## Testing
 
-- **100% coverage required** -- enforced by `pytest-cov` (`fail_under = 100` in pyproject.toml).
-- Run tests: `uv run pytest`
+- Run: `uv run pytest`
 - Pre-commit: `prek run --all-files`
 
-## Quality Gate (Stop Hook)
+## Skill Design Principles
 
-This repo uses a Stop hook that prevents the agent from completing until all
-quality gates pass. When you try to finish, `scripts/hooks/verify-completion.sh`
-runs automatically and checks:
+- **Default to maximum security.** When a skill presents options with security implications (server hardening, auth methods, sandboxing, encryption), always present the most secure option as the default. If a security measure doesn't fit the user's situation (e.g., RAM constraints, no use case), explicitly explain why you're suggesting to disable it, what risk the user accepts, and how to re-enable it later. Never silently omit a security feature or present security as opt-in.
+- **Don't assume — ask.** When a recommendation depends on user intent that hasn't been gathered yet, ask the question first. Never base advice on an assumption about what the user will or won't do.
+- **Don't guess — research.** When a skill references third-party UIs, APIs, or configuration (e.g., API key permissions, provider dashboards), web-search for the current state before advising. Third-party interfaces change frequently. If a skill caches a snapshot, mark it with a date and warn it may be stale.
+- **Automate, but ask before GUI.** When a step can be automated (install, open a URL, run a command), do it instead of printing instructions. But always ask permission before opening GUI windows, browsers, or App Store pages — these are disruptive and the user may not be ready.
+- **Never leak secrets or personal data — in terminal output OR skill files.** Use single-quoted heredocs (`<< 'EOF'`) so shell variables aren't expanded in the output. Never use interactive commands that echo secrets character by character (e.g., `paste-token`). Never print API keys, tokens, or passwords — not even partially. **Never put real IPs, phone numbers, hostnames, usernames, or account-specific data in skill files** — use `<placeholder>` templates instead. Personal data belongs in agent memory/config, not in skills (which may be public repos).
 
-1. Pre-commit hooks pass (`prek run --all-files`)
-2. Tests pass (`uv run pytest`)
-3. No uncommitted changes remain
+## Information Boundaries
 
-If any gate fails, address the issues and try again.
+- Generic/framework skills must **not** contain project-specific or proprietary details.
+- Project-specific skills (in overlay repos) may reference their project freely but must not leak into generic skills.

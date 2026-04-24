@@ -20,8 +20,11 @@ repos:
     rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # v6.0.0
     hooks:
       - id: end-of-file-fixer
+        exclude: \.html$
       - id: trailing-whitespace
+        exclude: \.html$
       - id: mixed-line-ending
+        exclude: \.m?html$
         args: [--fix=lf]
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: d174eb7a8f35e05d4065c82d375ad84aa0b32352  # v0.17.2
@@ -130,14 +133,7 @@ repos:
       - id: pip-audit
         name: pip-audit
         language: system
-        entry: >
-          bash -c "
-          set -euo pipefail
-          tmp=$(mktemp)
-          trap 'rm -f \"$tmp\"' EXIT
-          uv export --no-hashes --dev -o \"$tmp\"
-          uv run pip-audit -r \"$tmp\"
-          "
+        entry: bash -c 'set -euo pipefail; tmp=$(mktemp); trap "rm -f $tmp" EXIT; uv export --no-hashes --dev -o "$tmp"; uv run pip-audit -r "$tmp"'
         pass_filenames: false
         files: ^(pyproject\.toml|uv\.lock)$
         stages: [commit, manual]
