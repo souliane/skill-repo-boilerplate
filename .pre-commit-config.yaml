@@ -120,6 +120,12 @@ repos:
   # Phase 7 - Project-specific
   - repo: local
     hooks:
+      - id: check-skills
+        name: Validate SKILL.md frontmatter
+        language: system
+        entry: uv run scripts/validate_skills.py
+        pass_filenames: false
+        always_run: true
       - id: update-readme-skills
         name: Update README skills catalogue
         language: system
@@ -130,10 +136,10 @@ repos:
   # Phase 8 - Slow
   - repo: local
     hooks:
-      - id: pip-audit
-        name: pip-audit
+      - id: uv-audit
+        name: uv audit
         language: system
-        entry: bash -c 'set -euo pipefail; tmp=$(mktemp); trap "rm -f $tmp" EXIT; uv export --no-hashes --dev -o "$tmp"; uv run pip-audit -r "$tmp"'
+        entry: uv audit --preview-features audit
         pass_filenames: false
         files: ^(pyproject\.toml|uv\.lock)$
         stages: [commit, manual]
