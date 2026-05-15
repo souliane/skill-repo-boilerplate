@@ -120,6 +120,12 @@ repos:
   # Phase 7 - Project-specific
   - repo: local
     hooks:
+      - id: check-skills
+        name: Validate SKILL.md frontmatter
+        language: system
+        entry: uv run scripts/validate_skills.py
+        pass_filenames: false
+        always_run: true
       - id: update-readme-skills
         name: Update README skills catalogue
         language: system
