@@ -135,6 +135,7 @@ partial_branches = [
 ]
 
 [tool.coverage.run]
+branch = true
 source = [ "scripts" ]
 omit = [
   "scripts/bump-pyproject-deps-from-lock-file.py",

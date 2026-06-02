@@ -12,7 +12,10 @@ CONFIG="$HOME/.teatree"
 [ -f "$CONFIG" ] || exit 0
 
 # Extract T3_BANNED_TERMS value (comma-separated).
-TERMS=$(grep -E '^T3_BANNED_TERMS=' "$CONFIG" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+# `|| true` so a no-match grep does not abort under `set -o pipefail`/`set -e`
+# when the config exists but defines no banned terms.
+# Tolerates an optional `export ` prefix (the real ~/.teatree is a sourced env file).
+TERMS=$(grep -E '^(export[[:space:]]+)?T3_BANNED_TERMS=' "$CONFIG" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true)
 [ -n "$TERMS" ] || exit 0
 
 # Build grep pattern: word-boundary match for each term.
