@@ -8,10 +8,11 @@ build/
 # Virtual environments
 .venv/
 
-# IDE
+# IDE / editor
 .idea/
 .vscode/
 *.swp
+*~
 
 # OS
 .DS_Store

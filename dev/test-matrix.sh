@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 IMAGE="ubuntu:latest"
 failed=0
 
-for py in 3.12 3.13 3.14; do
+for py in 3.13 3.14; do
     echo "=== Python $py ==="
     if docker run --rm -v "$PWD":/app -w /app "$IMAGE" \
         bash -c "

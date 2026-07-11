@@ -70,7 +70,7 @@ repos:
     rev: 63c8f8312b7559622c0d82815639671ae42132ac  # v2.4.1
     hooks:
       - id: codespell
-        args: [--write-changes, --ignore-words-list=afterAll]
+        args: [--write-changes]
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: 61529b21391331d7cfd1f191df6293534a1fd79a  # v3.4.0
     hooks:
@@ -98,24 +98,24 @@ repos:
         language: pygrep
         entry: '#!/usr/bin/env -S uv run --script'
         args: [--negate]
-        files: '.*/scripts/cli\.py$'
+        files: '(^|/)scripts/cli\.py$'
       - id: scripts-have-inline-metadata
         name: scripts-have-inline-metadata
         language: pygrep
         entry: '# /// script'
         args: [--negate]
-        files: '.*/scripts/cli\.py$'
+        files: '(^|/)scripts/cli\.py$'
       - id: scripts-no-raw-sys-argv
         name: scripts-no-raw-sys-argv
         language: pygrep
         entry: 'sys\.argv'
-        files: '.*/scripts/[^_][^/]*\.py$'
+        files: '(^|/)scripts/[^_][^/]*\.py$'
       - id: banned-terms
         name: banned-terms
         language: script
         entry: scripts/hooks/check-banned-terms.sh --config ~/.my-skills
         types: [text]
-        exclude: ^(\.pre-commit-config\.yaml|scripts/hooks/)$
+        exclude: ^(\.pre-commit-config\.yaml$|scripts/hooks/)
 
   # Phase 7 - Project-specific
   - repo: local
