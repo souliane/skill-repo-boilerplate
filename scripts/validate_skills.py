@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # dependencies = []
-# requires-python = ">=3.12"
+# requires-python = ">=3.13"
 # ///
 """Validate that every SKILL.md has the required frontmatter fields.
 
@@ -53,7 +53,10 @@ def _validate(skill_md: Path) -> list[str]:
 
 
 def main() -> int:
-    skill_files = sorted(ROOT_DIR.rglob("SKILL.md"))
+    # Skip dot-dirs (.venv, vendored copies, etc.) so only real skills are checked.
+    skill_files = sorted(
+        p for p in ROOT_DIR.rglob("SKILL.md") if not any(part.startswith(".") for part in p.relative_to(ROOT_DIR).parts)
+    )
     if not skill_files:
         return 0
     failed = False

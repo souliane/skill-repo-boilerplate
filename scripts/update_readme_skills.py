@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # dependencies = []
-# requires-python = ">=3.12"
+# requires-python = ">=3.13"
 # ///
 """Auto-update the skills catalogue in README.md from SKILL.md frontmatter."""
 
@@ -15,6 +15,13 @@ README_PATH = ROOT_DIR / "README.md"
 BEGIN = "<!-- BEGIN SKILLS -->"
 END = "<!-- END SKILLS -->"
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.+?)\n---", re.DOTALL)
+
+
+def _iter_skill_files() -> list[Path]:
+    """SKILL.md files under ROOT_DIR, skipping dot-dirs (.venv, vendored, etc.)."""
+    return sorted(
+        p for p in ROOT_DIR.rglob("SKILL.md") if not any(part.startswith(".") for part in p.relative_to(ROOT_DIR).parts)
+    )
 
 
 def _parse_frontmatter(path: Path) -> dict[str, str]:
@@ -33,7 +40,7 @@ def _parse_frontmatter(path: Path) -> dict[str, str]:
 def _build_table() -> str:
     skills: list[tuple[str, str, str]] = []  # (name, version, description)
 
-    for skill_md in sorted(ROOT_DIR.rglob("SKILL.md")):
+    for skill_md in _iter_skill_files():
         meta = _parse_frontmatter(skill_md)
         name = meta.get("name", skill_md.parent.name)
         desc = meta.get("description", "")

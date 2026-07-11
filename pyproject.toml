@@ -8,6 +8,7 @@ requires-python = ">=3.13"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [dependency-groups]
@@ -107,6 +108,10 @@ lint.preview = true
 
 [tool.codespell]
 
+[tool.pyproject-fmt]
+# CI tests 3.14; let pyproject-fmt keep the matching classifier.
+max_supported_python = "3.14"
+
 [tool.pytest.ini_options]
 addopts = """
 --color=yes --doctest-modules --exitfirst --failed-first
@@ -114,7 +119,7 @@ addopts = """
 --cov --cov-report=term-missing:skip-covered --cov-branch
 """
 testpaths = [ "tests" ]
-pythonpath = [ "scripts", "scripts/hooks", "tests" ]
+pythonpath = [ "scripts", "tests" ]
 filterwarnings = [ "error" ]
 xfail_strict = true
 
@@ -138,24 +143,17 @@ partial_branches = [
 branch = true
 source = [ "scripts" ]
 omit = [
+  # Interactive dev-only maintenance CLI; not exercised by the test suite.
   "scripts/bump-pyproject-deps-from-lock-file.py",
+  # Shell hooks, not Python — covered by dev/test-matrix.sh / pre-commit, not coverage.
   "scripts/hooks/*",
-  "scripts/update_readme_skills.py",
-]
-
-[tool.ty.analysis]
-# External deps from uv script headers (not installed in the skill repo)
-allowed-unresolved-imports = [
-  "tomlkit",
-  "typer",
-  "pytest",
 ]
 
 [tool.ty]
 terminal = { error-on-warning = true }
 
 [tool.ty.environment]
-extra-paths = [ "scripts", "scripts/hooks", "tests" ]
+extra-paths = [ "scripts", "tests" ]
 python-version = "3.13"
 
 [tool.ty.rules]
