@@ -88,6 +88,7 @@ lint.per-file-ignores."tests/**/*.py" = [
   "S101",    # assert (pytest uses assert)
   "S108",    # hardcoded-temp-file
   "S404",    # suspicious-subprocess-import (tests mock subprocess)
+  "S603",    # subprocess-without-shell-equals-true (a shell hook's exit codes can only be asserted by running it)
   "SLF001",  # private-member-access
 ]
 lint.fixable = [ "ALL" ]

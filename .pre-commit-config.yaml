@@ -110,10 +110,14 @@ repos:
         language: pygrep
         entry: 'sys\.argv'
         files: '.*/scripts/[^_][^/]*\.py$'
+      # Point --config at wherever this repo keeps its banned list, e.g.
+      # `--config ~/.my-project`. Omitted here so the default (~/.teatree) applies:
+      # the gate now FAILS LOUD on a missing config, so naming a path that does not
+      # exist would break every commit in a freshly scaffolded repo.
       - id: banned-terms
         name: banned-terms
         language: script
-        entry: scripts/hooks/check-banned-terms.sh --config ~/.my-skills
+        entry: scripts/hooks/check-banned-terms.sh
         types: [text]
         exclude: ^(\.pre-commit-config\.yaml|scripts/hooks/)$
 
