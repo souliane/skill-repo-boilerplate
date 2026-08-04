@@ -4,10 +4,10 @@ version = "0.0.1"
 description = "AI agent skills"
 readme = "README.md"
 requires-python = ">=3.13"
-
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [dependency-groups]
@@ -108,58 +108,48 @@ lint.preview = true
 
 [tool.codespell]
 
-[tool.pytest.ini_options]
-addopts = """
---color=yes --doctest-modules --exitfirst --failed-first
---strict-config --strict-markers --verbose --log-cli-level=INFO
---cov --cov-report=term-missing:skip-covered --cov-branch
-"""
-testpaths = [ "tests" ]
-pythonpath = [ "scripts", "scripts/hooks", "tests" ]
-filterwarnings = [ "error" ]
-xfail_strict = true
-
-# --- Coverage ---
-
-[tool.coverage.report]
-fail_under = 100
-precision = 1
-show_missing = true
-exclude_lines = [
-  "if __name__",
-  "if TYPE_CHECKING",
-  "def main\\(",
-  "pragma: no cover",
-]
-partial_branches = [
-  "pragma: no branch",
-]
-
-[tool.coverage.run]
-branch = true
-source = [ "scripts" ]
-omit = [
-  "scripts/bump-pyproject-deps-from-lock-file.py",
-  "scripts/hooks/*",
-]
-
-[tool.ty.analysis]
+[tool.ty]
+environment.extra-paths = [ "scripts", "scripts/hooks", "tests" ]
+environment.python-version = "3.13"
+rules.division-by-zero = "error"
+rules.no-matching-overload = "error"
+rules.possibly-unresolved-reference = "error"
+rules.unused-ignore-comment = "error"
+terminal = { error-on-warning = true }
 # External deps from uv script headers (not installed in the skill repo)
-allowed-unresolved-imports = [
+analysis.allowed-unresolved-imports = [
   "tomlkit",
   "typer",
   "pytest",
 ]
 
-[tool.ty]
-terminal = { error-on-warning = true }
+[tool.pytest]
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "scripts", "scripts/hooks", "tests" ]
+ini_options.addopts = """
+--color=yes --doctest-modules --exitfirst --failed-first
+--strict-config --strict-markers --verbose --log-cli-level=INFO
+--cov --cov-report=term-missing:skip-covered --cov-branch
+"""
+ini_options.xfail_strict = true
+ini_options.filterwarnings = [ "error" ]
 
-[tool.ty.environment]
-extra-paths = [ "scripts", "scripts/hooks", "tests" ]
-python-version = "3.13"
-
-[tool.ty.rules]
-division-by-zero = "error"
-possibly-unresolved-reference = "error"
-unused-ignore-comment = "error"
-no-matching-overload = "error"
+[tool.coverage]
+run.branch = true
+run.omit = [
+  "scripts/bump-pyproject-deps-from-lock-file.py",
+  "scripts/hooks/*",
+]
+run.source = [ "scripts" ]
+report.exclude_lines = [
+  "def main\\(",
+  "if __name__",
+  "if TYPE_CHECKING",
+  "pragma: no cover",
+]
+report.fail_under = 100
+report.partial_branches = [
+  "pragma: no branch",
+]
+report.precision = 1
+report.show_missing = true
