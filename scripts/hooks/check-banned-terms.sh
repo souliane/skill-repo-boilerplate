@@ -9,8 +9,11 @@
 # a machine-local file (never in the repo) is what lets this generic hook ship
 # in a public boilerplate without leaking the terms it enforces.
 #
-# Exits 0 (pass) if the config is missing or defines no terms, or if no term is
-# found. Exits 1 (fail) if any banned term appears in a scanned file.
+#   - config file missing        -> FAIL LOUD (exit 2): a leak gate that
+#                                   silently passes is worse than no gate,
+#                                   because the repo believes it is protected.
+#   - config present, key unset  -> pass (exit 0): nothing configured to block.
+#   - banned term found in files -> FAIL (exit 1).
 set -euo pipefail
 
 CONFIG="${HOME}/.banned-terms"
@@ -21,7 +24,8 @@ files=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --config)
-      CONFIG="${2:-}"
+      [ "$#" -ge 2 ] || { echo "check-banned-terms: --config needs a path" >&2; exit 2; }
+      CONFIG="$2"
       shift 2
       ;;
     --config=*)
@@ -41,8 +45,13 @@ case "$CONFIG" in
   "~/"*) CONFIG="$HOME/${CONFIG#\~/}" ;;
 esac
 
-# No config → nothing to check.
-[ -n "$CONFIG" ] && [ -f "$CONFIG" ] || exit 0
+# Fail loud on a misconfigured gate rather than silently skipping the check.
+if [ ! -f "$CONFIG" ]; then
+  echo "check-banned-terms: config file not found: $CONFIG" >&2
+  echo "Create it (with an optional BANNED_TERMS=... line) or fix the" >&2
+  echo "--config path in .pre-commit-config.yaml. Refusing to pass silently." >&2
+  exit 2
+fi
 
 # Extract the BANNED_TERMS value (comma-separated).
 # `|| true` so a no-match grep does not abort under `set -o pipefail`/`set -e`
@@ -61,7 +70,7 @@ for term in "${TERM_ARRAY[@]}"; do
 done
 [ -n "$PATTERN" ] || exit 0
 
-# Nothing staged to scan.
+# Nothing staged to scan (bash 3.2 treats an empty array as unset under `set -u`).
 [ "${#files[@]}" -gt 0 ] || exit 0
 
 # Check staged files.

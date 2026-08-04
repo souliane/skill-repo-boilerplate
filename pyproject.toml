@@ -4,7 +4,6 @@ version = "0.0.1"
 description = "AI agent skills"
 readme = "README.md"
 requires-python = ">=3.13"
-
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.13",
@@ -89,6 +88,7 @@ lint.per-file-ignores."tests/**/*.py" = [
   "S101",    # assert (pytest uses assert)
   "S108",    # hardcoded-temp-file
   "S404",    # suspicious-subprocess-import (tests mock subprocess)
+  "S603",    # subprocess-without-shell-equals-true (a shell hook's exit codes can only be asserted by running it)
   "SLF001",  # private-member-access
 ]
 lint.fixable = [ "ALL" ]
@@ -112,52 +112,44 @@ lint.preview = true
 # CI tests 3.14; let pyproject-fmt keep the matching classifier.
 max_supported_python = "3.14"
 
-[tool.pytest.ini_options]
-addopts = """
+[tool.ty]
+environment.extra-paths = [ "scripts", "tests" ]
+environment.python-version = "3.13"
+rules.division-by-zero = "error"
+rules.no-matching-overload = "error"
+rules.possibly-unresolved-reference = "error"
+rules.unused-ignore-comment = "error"
+terminal = { error-on-warning = true }
+
+[tool.pytest]
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "scripts", "tests" ]
+ini_options.addopts = """
 --color=yes --doctest-modules --exitfirst --failed-first
 --strict-config --strict-markers --verbose --log-cli-level=INFO
 --cov --cov-report=term-missing:skip-covered --cov-branch
 """
-testpaths = [ "tests" ]
-pythonpath = [ "scripts", "tests" ]
-filterwarnings = [ "error" ]
-xfail_strict = true
+ini_options.xfail_strict = true
+ini_options.filterwarnings = [ "error" ]
 
-# --- Coverage ---
-
-[tool.coverage.report]
-fail_under = 100
-precision = 1
-show_missing = true
-exclude_lines = [
-  "if __name__",
-  "if TYPE_CHECKING",
-  "def main\\(",
-  "pragma: no cover",
-]
-partial_branches = [
-  "pragma: no branch",
-]
-
-[tool.coverage.run]
-branch = true
-source = [ "scripts" ]
-omit = [
+[tool.coverage]
+run.branch = true
+run.omit = [
   # Interactive dev-only maintenance CLI; not exercised by the test suite.
   "scripts/bump-pyproject-deps-from-lock-file.py",
-  # Shell hooks, not Python — covered by dev/test-matrix.sh / pre-commit, not coverage.
+  # Shell hooks, not Python — covered by tests/test_check_banned_terms.py, not coverage.
   "scripts/hooks/*",
 ]
-
-[tool.ty]
-terminal = { error-on-warning = true }
-
-[tool.ty.environment]
-extra-paths = [ "scripts", "tests" ]
-python-version = "3.13"
-
-[tool.ty.rules]
-division-by-zero = "error"
-possibly-unresolved-reference = "error"
-unused-ignore-comment = "error"
-no-matching-overload = "error"
+run.source = [ "scripts" ]
+report.exclude_lines = [
+  "def main\\(",
+  "if __name__",
+  "if TYPE_CHECKING",
+  "pragma: no cover",
+]
+report.fail_under = 100
+report.partial_branches = [
+  "pragma: no branch",
+]
+report.precision = 1
+report.show_missing = true

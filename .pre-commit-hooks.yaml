@@ -1,0 +1,30 @@
+# Hooks this repo publishes to the skill repos scaffolded from it.
+# Consumers reference them by SHA instead of copying the scripts:
+#
+#   - repo: https://github.com/souliane/skill-repo-boilerplate
+#     rev: <sha>  # <date or tag>
+#     hooks:
+#       - id: update-readme-skills
+#       - id: bump-pyproject-deps-from-lock-file
+#
+# Both entries are `language: script`: the scripts carry a `uv run --script`
+# shebang with inline dependency metadata, so uv resolves their deps and no
+# packaging layer is needed. pre-commit and prek run hooks from the consuming
+# repo's root, which is the tree the scripts read and rewrite.
+
+- id: update-readme-skills
+  name: Update README skills catalogue
+  description: Regenerate the README table between the BEGIN/END SKILLS markers from SKILL.md frontmatter.
+  entry: scripts/update_readme_skills.py
+  language: script
+  pass_filenames: false
+  always_run: true
+
+- id: bump-pyproject-deps-from-lock-file
+  name: Bump pyproject deps from uv.lock
+  description: Raise every dependency floor in pyproject.toml to the version uv.lock resolved.
+  entry: scripts/bump-pyproject-deps-from-lock-file.py
+  language: script
+  files: ^(pyproject\.toml|uv\.lock)$
+  pass_filenames: false
+  stages: [manual]
