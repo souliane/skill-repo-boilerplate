@@ -108,24 +108,22 @@ lint.preview = true
 
 [tool.codespell]
 
+[tool.pyproject-fmt]
+# CI tests 3.14; let pyproject-fmt keep the matching classifier.
+max_supported_python = "3.14"
+
 [tool.ty]
-environment.extra-paths = [ "scripts", "scripts/hooks", "tests" ]
+environment.extra-paths = [ "scripts", "tests" ]
 environment.python-version = "3.13"
 rules.division-by-zero = "error"
 rules.no-matching-overload = "error"
 rules.possibly-unresolved-reference = "error"
 rules.unused-ignore-comment = "error"
 terminal = { error-on-warning = true }
-# External deps from uv script headers (not installed in the skill repo)
-analysis.allowed-unresolved-imports = [
-  "tomlkit",
-  "typer",
-  "pytest",
-]
 
 [tool.pytest]
 ini_options.testpaths = [ "tests" ]
-ini_options.pythonpath = [ "scripts", "scripts/hooks", "tests" ]
+ini_options.pythonpath = [ "scripts", "tests" ]
 ini_options.addopts = """
 --color=yes --doctest-modules --exitfirst --failed-first
 --strict-config --strict-markers --verbose --log-cli-level=INFO
@@ -137,7 +135,9 @@ ini_options.filterwarnings = [ "error" ]
 [tool.coverage]
 run.branch = true
 run.omit = [
+  # Interactive dev-only maintenance CLI; not exercised by the test suite.
   "scripts/bump-pyproject-deps-from-lock-file.py",
+  # Shell hooks, not Python — covered by tests/test_check_banned_terms.py, not coverage.
   "scripts/hooks/*",
 ]
 run.source = [ "scripts" ]

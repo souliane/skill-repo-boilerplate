@@ -3,20 +3,24 @@
 #
 # Usage: check-banned-terms.sh [--config PATH] FILE...
 #
-# Reads T3_BANNED_TERMS (comma-separated, case-insensitive) from the config
-# file named by --config (default: ~/.teatree). Keeping the banned list OUTSIDE
-# the repo avoids committing the very terms we want to keep out of it.
+# Reads BANNED_TERMS (comma-separated, case-insensitive) from the config file
+# named by --config (default: ~/.banned-terms). The config is a sourced env
+# file, so an optional `export ` prefix is tolerated. Keeping the term list in
+# a machine-local file (never in the repo) is what lets this generic hook ship
+# in a public boilerplate without leaking the terms it enforces.
 #
 #   - config file missing        -> FAIL LOUD (exit 2): a leak gate that
-#                                    silently passes is worse than no gate.
+#                                   silently passes is worse than no gate,
+#                                   because the repo believes it is protected.
 #   - config present, key unset  -> pass (exit 0): nothing configured to block.
 #   - banned term found in files -> FAIL (exit 1).
 set -euo pipefail
 
-CONFIG="$HOME/.teatree"
+CONFIG="${HOME}/.banned-terms"
 
-# --- Parse args: pull out --config PATH; everything else is a file to scan. ---
-FILES=()
+# Parse flags; every remaining positional arg is a file to scan. Consuming the
+# flags here is what stops `--config`/its value from leaking into the file loop.
+files=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --config)
@@ -29,13 +33,13 @@ while [ "$#" -gt 0 ]; do
       shift
       ;;
     *)
-      FILES+=("$1")
+      files+=("$1")
       shift
       ;;
   esac
 done
 
-# Expand a leading ~ (the shell does not expand it inside a quoted flag value).
+# pre-commit passes the entry verbatim, so a leading ~ arrives unexpanded.
 case "$CONFIG" in
   "~") CONFIG="$HOME" ;;
   "~/"*) CONFIG="$HOME/${CONFIG#\~/}" ;;
@@ -44,16 +48,15 @@ esac
 # Fail loud on a misconfigured gate rather than silently skipping the check.
 if [ ! -f "$CONFIG" ]; then
   echo "check-banned-terms: config file not found: $CONFIG" >&2
-  echo "Create it (with an optional T3_BANNED_TERMS=... line) or fix the" >&2
+  echo "Create it (with an optional BANNED_TERMS=... line) or fix the" >&2
   echo "--config path in .pre-commit-config.yaml. Refusing to pass silently." >&2
   exit 2
 fi
 
-# Extract T3_BANNED_TERMS value (comma-separated).
-# `|| true`: under `set -euo pipefail`, a no-match grep returns non-zero and would
-# abort the whole hook before the empty-check below. A missing key must mean "nothing
-# to check", not a hook crash.
-TERMS=$(grep -E '^T3_BANNED_TERMS=' "$CONFIG" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true)
+# Extract the BANNED_TERMS value (comma-separated).
+# `|| true` so a no-match grep does not abort under `set -o pipefail`/`set -e`
+# when the config exists but defines no banned terms.
+TERMS=$(grep -E '^(export[[:space:]]+)?BANNED_TERMS=' "$CONFIG" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true)
 [ -n "$TERMS" ] || exit 0
 
 # Build grep pattern: word-boundary match for each term.
@@ -67,14 +70,17 @@ for term in "${TERM_ARRAY[@]}"; do
 done
 [ -n "$PATTERN" ] || exit 0
 
-# Check staged files (guard the expansion so an empty list is safe under set -u).
+# Nothing staged to scan (bash 3.2 treats an empty array as unset under `set -u`).
+[ "${#files[@]}" -gt 0 ] || exit 0
+
+# Check staged files.
 FOUND=0
-for file in ${FILES[@]+"${FILES[@]}"}; do
+for file in "${files[@]}"; do
   [ -f "$file" ] || continue
   if grep -iEn "$PATTERN" "$file" 2>/dev/null; then
     echo "^^^ Banned term found in: $file"
     echo "These terms must not appear in this repo."
-    echo "Configured in: $CONFIG (T3_BANNED_TERMS)"
+    echo "Configured in: $CONFIG (BANNED_TERMS)"
     echo ""
     FOUND=1
   fi

@@ -1,4 +1,4 @@
 config:
   MD013: false  # Line length — managed by editors, not linters.
   MD029: false  # Ordered list item prefix — allow "1. 2. 3." style.
-  MD033: false  # Inline HTML — needed for advanced Marp layouts and diagrams.
+  MD033: false  # Inline HTML — allowed for tables/anchors that Markdown can't express.

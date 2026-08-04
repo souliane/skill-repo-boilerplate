@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # dependencies = []
-# requires-python = ">=3.12"
+# requires-python = ">=3.13"
 # ///
 """Auto-update the skills catalogue in README.md from SKILL.md frontmatter.
 

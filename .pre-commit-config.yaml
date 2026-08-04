@@ -70,7 +70,7 @@ repos:
     rev: 57b21406f092110c18776e39b0bda50d37c945c8  # v2.4.3
     hooks:
       - id: codespell
-        args: [--write-changes, --ignore-words-list=afterAll]
+        args: [--write-changes]
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: 3aa28ce11a84d747c5695ad10b81945f2400b54f  # 3.8.0
     hooks:
@@ -98,28 +98,29 @@ repos:
         language: pygrep
         entry: '#!/usr/bin/env -S uv run --script'
         args: [--negate]
-        files: '.*/scripts/cli\.py$'
+        files: '(^|/)scripts/cli\.py$'
       - id: scripts-have-inline-metadata
         name: scripts-have-inline-metadata
         language: pygrep
         entry: '# /// script'
         args: [--negate]
-        files: '.*/scripts/cli\.py$'
+        files: '(^|/)scripts/cli\.py$'
       - id: scripts-no-raw-sys-argv
         name: scripts-no-raw-sys-argv
         language: pygrep
         entry: 'sys\.argv'
-        files: '.*/scripts/[^_][^/]*\.py$'
+        files: '(^|/)scripts/[^_][^/]*\.py$'
       # Point --config at wherever this repo keeps its banned list, e.g.
-      # `--config ~/.my-project`. Omitted here so the default (~/.teatree) applies:
-      # the gate now FAILS LOUD on a missing config, so naming a path that does not
-      # exist would break every commit in a freshly scaffolded repo.
+      # `--config ~/.my-project`. Omitted here so the script's own default
+      # (~/.banned-terms) applies: the gate FAILS LOUD on a missing config, so
+      # naming a path that does not exist would break every commit in a freshly
+      # scaffolded repo.
       - id: banned-terms
         name: banned-terms
         language: script
         entry: scripts/hooks/check-banned-terms.sh
         types: [text]
-        exclude: ^(\.pre-commit-config\.yaml|scripts/hooks/)$
+        exclude: ^(\.pre-commit-config\.yaml$|scripts/hooks/)
 
   # Phase 7 - Project-specific
   - repo: local

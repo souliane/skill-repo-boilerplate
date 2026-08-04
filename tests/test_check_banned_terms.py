@@ -29,7 +29,7 @@ def run(*args: str, home: Path | None = None) -> subprocess.CompletedProcess[str
 @pytest.fixture
 def config(tmp_path: Path) -> Path:
     path = tmp_path / "banned.env"
-    path.write_text(f'T3_BANNED_TERMS="{BANNED}"\n', encoding="utf-8")
+    path.write_text(f'export BANNED_TERMS="{BANNED}"\n', encoding="utf-8")
     return path
 
 
