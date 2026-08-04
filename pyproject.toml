@@ -141,7 +141,6 @@ source = [ "scripts" ]
 omit = [
   "scripts/bump-pyproject-deps-from-lock-file.py",
   "scripts/hooks/*",
-  "scripts/update_readme_skills.py",
 ]
 
 [tool.ty.analysis]

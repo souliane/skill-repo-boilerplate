@@ -6,7 +6,7 @@ AI agent skills — composable workflow automation as structured markdown.
 
 <!-- BEGIN SKILLS -->
 | Skill | Version | Description |
-|-------|---------|-------------|
+| --- | --- | --- |
 | `my-skill` | 0.0.1 | Description of what this skill does and when to use it. |
 <!-- END SKILLS -->
 
@@ -51,6 +51,33 @@ git merge boilerplate/main --allow-unrelated-histories
 ```
 
 Repeat `git fetch boilerplate && git merge boilerplate/main` whenever the boilerplate gets updated.
+
+## Shared hooks published by this repo
+
+`.pre-commit-hooks.yaml` publishes the repo-level scripts so skill repos run them instead of keeping
+their own copy:
+
+| Hook id | What it does | Stage |
+| --- | --- | --- |
+| `update-readme-skills` | Regenerates the README skills table from `SKILL.md` frontmatter | pre-commit |
+| `bump-pyproject-deps-from-lock-file` | Raises every dependency floor in `pyproject.toml` to the version `uv.lock` resolved | manual |
+
+Consume them by SHA:
+
+```yaml
+  - repo: https://github.com/souliane/skill-repo-boilerplate
+    rev: <sha>  # <date>
+    hooks:
+      - id: update-readme-skills
+      - id: bump-pyproject-deps-from-lock-file
+        stages: [manual]
+```
+
+Run the manual one on demand:
+
+```bash
+prek run --hook-stage manual --all-files bump-pyproject-deps-from-lock-file
+```
 
 ## Contributing
 
